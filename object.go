@@ -66,6 +66,82 @@ func (object *Object) Raw() (raw []byte) {
 	return
 }
 
+func (object *Object) WriteTo(out *Object) (err error) {
+	if out == nil {
+		err = fmt.Errorf("fns json.Object WriteTo: can not write to nil point")
+		return
+	}
+	err = out.UnmarshalJSON(object.raw)
+	return
+}
+
+func (object *Object) Merge(src *Object) (err error) {
+	if src == nil {
+		err = fmt.Errorf("fns json.Object Merge: can not write to nil point")
+		return
+	}
+	dst := object.raw
+	srcResult := gjson.ParseBytes(src.Raw())
+	srcResult.ForEach(func(key gjson.Result, value gjson.Result) bool {
+		dst = merge(dst, key.String(), value)
+		return true
+	})
+	object.raw = dst
+	return
+}
+
+func merge(dst []byte, srcKey string, srcValue gjson.Result) (result []byte) {
+	switch srcValue.Type {
+	case gjson.String, gjson.Number, gjson.True, gjson.False:
+		affected, setErr := sjson.SetRawBytes(dst, srcKey, []byte(srcValue.Raw))
+		if setErr != nil {
+			result = dst
+			return
+		}
+		result = affected
+	case gjson.JSON:
+		if srcValue.IsArray() {
+			affected, setErr := sjson.SetRawBytes(dst, srcKey, []byte(srcValue.Raw))
+			if setErr != nil {
+				result = dst
+				return
+			}
+			result = affected
+			return
+		}
+		if srcValue.IsObject() {
+			dstSub := gjson.GetBytes(dst, srcKey)
+			if !dstSub.Exists() {
+				affected, setErr := sjson.SetRawBytes(dst, srcKey, []byte(srcValue.Raw))
+				if setErr != nil {
+					result = dst
+					return
+				}
+				result = affected
+				return
+			}
+
+			dstSubRas := []byte(dstSub.Raw)
+			srcValue.ForEach(func(key, value gjson.Result) bool {
+				dstSubRas = merge(dstSubRas, key.Str, value)
+				return true
+			})
+
+			affected, setErr := sjson.SetRawBytes(dst, srcKey, dstSubRas)
+			if setErr != nil {
+				result = dst
+				return
+			}
+			result = affected
+
+		}
+	default:
+		result = dst
+	}
+
+	return
+}
+
 func (object *Object) Contains(path string) (has bool) {
 	has = gjson.GetBytes(object.raw, path).Exists()
 	return

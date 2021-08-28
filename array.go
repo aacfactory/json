@@ -58,6 +58,15 @@ func (array *Array) Raw() (raw []byte) {
 	return
 }
 
+func (array *Array) WriteTo(out *Array) (err error) {
+	if out == nil {
+		err = fmt.Errorf("fns json.Array WriteTo: can not write to nil point")
+		return
+	}
+	err = out.UnmarshalJSON(array.raw)
+	return
+}
+
 func (array *Array) Add(values ...interface{}) (err error) {
 	if values == nil || len(values) == 0 {
 		err = fmt.Errorf("json array add failed, values is empty")
