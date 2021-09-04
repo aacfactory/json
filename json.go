@@ -18,6 +18,7 @@ package json
 
 import (
 	jsoniter "github.com/json-iterator/go"
+	"github.com/tidwall/gjson"
 )
 
 var (
@@ -41,11 +42,11 @@ func API() jsoniter.API {
 }
 
 func Validate(data []byte) bool {
-	return jsoniter.Valid(data)
+	return gjson.ValidBytes(data)
 }
 
 func ValidateString(data string) bool {
-	return jsoniter.Valid([]byte(data))
+	return gjson.Valid(data)
 }
 
 func Marshal(v interface{}) (p []byte, err error) {

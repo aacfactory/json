@@ -19,11 +19,11 @@ func TestRawMessage_UnmarshalJSON(t *testing.T) {
 
 func TestRawMessage_MarshalJSON(t *testing.T) {
 
-	r := json.RawMessage{}
+	p, mErr := json.Marshal(10)
 
-	fmt.Println(json.Marshal(r))
+	fmt.Println(p, mErr)
 
-
+	fmt.Println(json.Marshal(p))
 
 	fmt.Println(json.Unmarshal([]byte("null"), &json.RawMessage{}))
 
