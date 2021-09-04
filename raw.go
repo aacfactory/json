@@ -5,7 +5,7 @@ import "errors"
 type RawMessage []byte
 
 func (m RawMessage) MarshalJSON() ([]byte, error) {
-	if m == nil {
+	if m == nil || len(m) == 0 {
 		return []byte("null"), nil
 	}
 	if !Validate(m) {
@@ -17,6 +17,9 @@ func (m RawMessage) MarshalJSON() ([]byte, error) {
 func (m *RawMessage) UnmarshalJSON(data []byte) error {
 	if m == nil {
 		return errors.New("json.RawMessage: UnmarshalJSON on nil pointer")
+	}
+	if data == nil || len(data) == 0 {
+		return nil
 	}
 	if !Validate(data) {
 		return errors.New("json.RawMessage: UnmarshalJSON on invalid message")
