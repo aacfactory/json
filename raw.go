@@ -28,6 +28,16 @@ func (m *RawMessage) UnmarshalJSON(data []byte) error {
 	return nil
 }
 
+func (m RawMessage) MarshalBinary() (data []byte, err error) {
+	data, err = m.MarshalJSON()
+	return
+}
+
+func (m *RawMessage) UnmarshalBinary(data []byte) (err error) {
+	err = m.UnmarshalJSON(data)
+	return
+}
+
 func (m *RawMessage) TryMapToObject() bool {
 	if m == nil {
 		return false
