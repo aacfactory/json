@@ -22,4 +22,19 @@ func TestNewDate(t *testing.T) {
 		return
 	}
 	fmt.Println(x.String())
+
+	d = json.Date(time.Time{})
+	p, err = json.Marshal(d)
+	if err != nil {
+		t.Error(err)
+		return
+	}
+	fmt.Println(string(p))
+	x = json.Date{}
+	err = json.Unmarshal(p, &x)
+	if err != nil {
+		t.Error(err)
+		return
+	}
+	fmt.Println(x.String())
 }

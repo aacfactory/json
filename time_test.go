@@ -22,4 +22,20 @@ func TestTime_MarshalJSON(t *testing.T) {
 		return
 	}
 	fmt.Println(td)
+
+	dt = json.Time{}
+
+	p, err = json.Marshal(dt)
+	if err != nil {
+		t.Error(err)
+		return
+	}
+	fmt.Println(string(p))
+	td = json.Time{}
+	err = json.Unmarshal(p, &td)
+	if err != nil {
+		t.Error(err)
+		return
+	}
+	fmt.Println(td)
 }
