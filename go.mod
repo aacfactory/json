@@ -4,7 +4,7 @@ go 1.17
 
 require (
 	github.com/json-iterator/go v1.1.12
-	github.com/tidwall/gjson v1.12.1
+	github.com/tidwall/gjson v1.14.1
 	github.com/tidwall/sjson v1.2.4
 	github.com/valyala/bytebufferpool v1.0.0
 )
