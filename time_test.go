@@ -4,38 +4,38 @@ import (
 	"fmt"
 	"github.com/aacfactory/json"
 	"testing"
+	"time"
 )
 
 func TestTime_MarshalJSON(t *testing.T) {
-	dt := json.TimeNow()
-
-	p, err := json.Marshal(dt)
+	now := time.Now()
+	p, err := json.Marshal(now)
 	if err != nil {
 		t.Error(err)
 		return
 	}
 	fmt.Println(string(p))
-	td := json.Time{}
-	err = json.Unmarshal(p, &td)
+	v := time.Time{}
+	err = json.Unmarshal(p, &v)
 	if err != nil {
 		t.Error(err)
 		return
 	}
-	fmt.Println(td)
+	fmt.Println(v)
 
-	dt = json.Time{}
-
-	p, err = json.Marshal(dt)
+	zero := time.Time{}
+	p, err = json.Marshal(zero)
 	if err != nil {
 		t.Error(err)
 		return
 	}
 	fmt.Println(string(p))
-	td = json.Time{}
-	err = json.Unmarshal(p, &td)
+	v = time.Time{}
+	err = json.Unmarshal(p, &v)
 	if err != nil {
 		t.Error(err)
 		return
 	}
-	fmt.Println(td)
+	fmt.Println(v)
+
 }

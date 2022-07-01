@@ -3,38 +3,23 @@ package json_test
 import (
 	"fmt"
 	"github.com/aacfactory/json"
+	"reflect"
 	"testing"
-	"time"
 )
 
 func TestNewDate(t *testing.T) {
-	d := json.NewDate(2021, time.March, 12)
-	p, err := json.Marshal(d)
+	fmt.Println(reflect.TypeOf(json.Date{}).String())
+	now := json.DateNow()
+	p, err := json.Marshal(now)
 	if err != nil {
-		t.Error(err)
-		return
+		t.Fatal(err)
 	}
 	fmt.Println(string(p))
-	x := json.Date{}
-	err = json.Unmarshal(p, &x)
+	v := json.Date{}
+	fmt.Println(v)
+	err = json.Unmarshal(p, &v)
 	if err != nil {
-		t.Error(err)
-		return
+		t.Fatal(err)
 	}
-	fmt.Println(x.String())
-
-	d = json.Date(time.Time{})
-	p, err = json.Marshal(d)
-	if err != nil {
-		t.Error(err)
-		return
-	}
-	fmt.Println(string(p))
-	x = json.Date{}
-	err = json.Unmarshal(p, &x)
-	if err != nil {
-		t.Error(err)
-		return
-	}
-	fmt.Println(x.String())
+	fmt.Println(v)
 }

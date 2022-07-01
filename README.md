@@ -1,16 +1,18 @@
-# 概述
+# JSON
 
-增加型的 json 结构。支持标准库中的 json 接口，增加了 Object 和 Array，以及 RawMessage 支持 映射到 Object 与 Array 。
+In the above case, the JSON structure of addition type. It supports JSON interfaces in the standard library, adds object and array, and raw message supports mapping to object and array.
 
-## 安装
+## Install
 
 ```go
 go get github.com/aacfactory/json
 ```
 
-## 特性
+## Feature
 
 * Json Object
+* Time(RFC3339)
+* Date
 * Json Array
 * Json Raw
 * Fast

@@ -1,10 +1,10 @@
 package json
 
 import (
-	"bytes"
-	"errors"
-	"fmt"
+	jsoniter "github.com/json-iterator/go"
+	"reflect"
 	"time"
+	"unsafe"
 )
 
 func DateNow() Date {
@@ -12,58 +12,76 @@ func DateNow() Date {
 }
 
 func NewDate(year int, month time.Month, day int) Date {
-	t := time.Date(year, month, day, 0, 0, 0, 0, time.Local)
-	return Date(t)
+	return Date{
+		Year:  year,
+		Month: month,
+		Day:   day,
+	}
 }
 
 func NewDateFromTime(t time.Time) Date {
-	x := time.Date(t.Year(), t.Month(), t.Day(), 0, 0, 0, 0, t.Location())
-	return Date(x)
+	return NewDate(t.Year(), t.Month(), t.Day())
 }
 
-type Date time.Time
+type Date struct {
+	Year  int
+	Month time.Month
+	Day   int
+}
 
 func (d Date) ToTime() time.Time {
-	return time.Time(d)
+	if d.Year < 1 {
+		d.Year = 1
+	}
+	if d.Month < 1 {
+		d.Month = 1
+	}
+	if d.Day < 1 {
+		d.Day = 1
+	}
+	return time.Date(d.Year, d.Month, d.Day, 0, 0, 0, 0, time.Local)
+}
+
+func (d Date) IsZero() (ok bool) {
+	ok = d.Year < 2 && d.Month < 2 && d.Day < 2
+	return
 }
 
 func (d Date) String() string {
 	return d.ToTime().Format("2006-01-02")
 }
 
-func (d Date) MarshalJSON() (p []byte, err error) {
-	if d.ToTime().IsZero() {
-		p = []byte("\"\"")
-		return
+var (
+	dateType = reflect.TypeOf(Date{})
+)
+
+func dateTypeEncoderFunc(ptr unsafe.Pointer, stream *jsoniter.Stream) {
+	v := reflect.NewAt(dateType, ptr).Elem().Interface().(Date)
+	if v.IsZero() {
+		stream.WriteString("")
+	} else {
+		stream.WriteString(v.String())
 	}
-	p = []byte(fmt.Sprintf("\"%s\"", d.String()))
 	return
 }
 
-func (d *Date) UnmarshalJSON(p []byte) error {
-	if d == nil {
-		return errors.New("json.RawMessage: UnmarshalJSON on nil pointer")
+func dateIsEmpty(ptr unsafe.Pointer) bool {
+	return reflect.NewAt(dateType, ptr).Elem().Interface().(Date).IsZero()
+}
+
+func dateTypeDecoderFunc(ptr unsafe.Pointer, iter *jsoniter.Iterator) {
+	str := iter.ReadString()
+	if iter.Error != nil {
+		return
 	}
-	if p == nil {
-		return nil
+	if str == "" {
+		return
 	}
-	p = bytes.TrimSpace(p)
-	if len(p) == 0 {
-		return nil
-	}
-	if p[0] == '"' {
-		if len(p) < 2 {
-			return errors.New("json.RawMessage: UnmarshalJSON on invalid content")
-		}
-		p = p[1 : len(p)-1]
-	}
-	if len(p) == 0 {
-		return nil
-	}
-	date, parseErr := time.Parse("2006-01-02", string(p))
+	v, parseErr := time.Parse("2006-01-02", str)
 	if parseErr != nil {
-		return fmt.Errorf("parse date failed for not int, raw value is %s", string(p))
+		iter.ReportError("unmarshal json.Date", parseErr.Error())
+		return
 	}
-	*d = Date(date)
-	return nil
+	reflect.NewAt(dateType, ptr).Elem().Set(reflect.ValueOf(NewDateFromTime(v)))
+	return
 }

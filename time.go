@@ -1,10 +1,10 @@
 package json
 
 import (
-	"bytes"
-	"errors"
-	"fmt"
+	jsoniter "github.com/json-iterator/go"
+	"reflect"
 	"time"
+	"unsafe"
 )
 
 func TimeNow() Time {
@@ -15,6 +15,8 @@ func NewTime(t time.Time) Time {
 	return Time(t)
 }
 
+// Time
+// Deprecated
 type Time time.Time
 
 func (t Time) ToTime() time.Time {
@@ -25,39 +27,37 @@ func (t Time) String() string {
 	return time.Time(t).Format(time.RFC3339)
 }
 
-func (t Time) MarshalJSON() (p []byte, err error) {
-	if t.ToTime().IsZero() {
-		p = []byte("\"\"")
-		return
+var (
+	timeType = reflect.TypeOf(time.Time{})
+)
+
+func timeTypeEncoderFunc(ptr unsafe.Pointer, stream *jsoniter.Stream) {
+	v := reflect.NewAt(timeType, ptr).Elem().Interface().(time.Time)
+	if v.IsZero() {
+		stream.WriteString("")
+	} else {
+		stream.WriteString(v.Format(time.RFC3339))
 	}
-	p = []byte(fmt.Sprintf("\"%s\"", time.Time(t).Format(time.RFC3339)))
 	return
 }
 
-func (t *Time) UnmarshalJSON(p []byte) error {
-	if t == nil {
-		return errors.New("json.RawMessage: UnmarshalJSON on nil pointer")
+func timeIsEmpty(ptr unsafe.Pointer) bool {
+	return reflect.NewAt(timeType, ptr).Elem().Interface().(time.Time).IsZero()
+}
+
+func timeTypeDecoderFunc(ptr unsafe.Pointer, iter *jsoniter.Iterator) {
+	str := iter.ReadString()
+	if iter.Error != nil {
+		return
 	}
-	if p == nil {
-		return nil
+	if str == "" {
+		return
 	}
-	p = bytes.TrimSpace(p)
-	if len(p) == 0 {
-		return nil
-	}
-	if p[0] == '"' {
-		if len(p) < 2 {
-			return errors.New("json.RawMessage: UnmarshalJSON on invalid content")
-		}
-		p = p[1 : len(p)-1]
-	}
-	if len(p) == 0 {
-		return nil
-	}
-	dt, parseErr := time.Parse(time.RFC3339, string(p))
+	v, parseErr := time.Parse(time.RFC3339, str)
 	if parseErr != nil {
-		return fmt.Errorf("parse time failed for invalid layout, raw value is %s", string(p))
+		iter.ReportError("unmarshal time.Time", parseErr.Error())
+		return
 	}
-	*t = Time(dt)
-	return nil
+	reflect.NewAt(timeType, ptr).Elem().Set(reflect.ValueOf(v))
+	return
 }

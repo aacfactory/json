@@ -26,7 +26,11 @@ var (
 )
 
 func init() {
-	_json = jsoniter.ConfigCompatibleWithStandardLibrary
+	jsoniter.RegisterTypeEncoderFunc("time.Time", timeTypeEncoderFunc, timeIsEmpty)
+	jsoniter.RegisterTypeDecoderFunc("time.Time", timeTypeDecoderFunc)
+	jsoniter.RegisterTypeEncoderFunc("json.Date", dateTypeEncoderFunc, dateIsEmpty)
+	jsoniter.RegisterTypeDecoderFunc("json.Date", dateTypeDecoderFunc)
+	_json = jsoniter.ConfigDefault
 }
 
 type Marshaler interface {
