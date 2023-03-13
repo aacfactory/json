@@ -14,7 +14,8 @@ var (
 
 func complexTypeEncoderFunc(ptr unsafe.Pointer, stream *jsoniter.Stream) {
 	v := reflect.NewAt(complexType, ptr).Elem().Complex()
-	stream.WriteString(fmt.Sprintf("%v", v))
+	s := fmt.Sprintf("%v", v)
+	stream.WriteString(s[1 : len(s)-1])
 	return
 }
 
@@ -30,6 +31,7 @@ func complexTypeDecoderFunc(ptr unsafe.Pointer, iter *jsoniter.Iterator) {
 	if str == "" {
 		return
 	}
+	str = "(" + str + ")"
 	v, parseErr := strconv.ParseComplex(str, 128)
 	if parseErr != nil {
 		iter.ReportError("unmarshal complex", parseErr.Error())
