@@ -26,10 +26,16 @@ var (
 )
 
 func init() {
-	jsoniter.RegisterTypeEncoderFunc("time.Time", timeTypeEncoderFunc, timeIsEmpty)
-	jsoniter.RegisterTypeDecoderFunc("time.Time", timeTypeDecoderFunc)
+	jsoniter.RegisterTypeEncoderFunc("time.Time", datetimeTypeEncoderFunc, datetimeIsEmpty)
+	jsoniter.RegisterTypeDecoderFunc("time.Time", datetimeTypeDecoderFunc)
 	jsoniter.RegisterTypeEncoderFunc("json.Date", dateTypeEncoderFunc, dateIsEmpty)
 	jsoniter.RegisterTypeDecoderFunc("json.Date", dateTypeDecoderFunc)
+	jsoniter.RegisterTypeEncoderFunc("json.Time", timeTypeEncoderFunc, timeIsEmpty)
+	jsoniter.RegisterTypeDecoderFunc("json.Time", timeTypeDecoderFunc)
+	jsoniter.RegisterTypeEncoderFunc("complex64", complexTypeEncoderFunc, complexIsEmpty)
+	jsoniter.RegisterTypeDecoderFunc("complex64", complexTypeDecoderFunc)
+	jsoniter.RegisterTypeEncoderFunc("complex128", complexTypeEncoderFunc, complexIsEmpty)
+	jsoniter.RegisterTypeDecoderFunc("complex128", complexTypeDecoderFunc)
 	_json = jsoniter.ConfigDefault
 }
 

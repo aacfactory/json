@@ -7,32 +7,75 @@ import (
 	"unsafe"
 )
 
-func TimeNow() Time {
-	return Time(time.Now())
+var (
+	timeType = reflect.TypeOf(Time{})
+)
+
+type Time struct {
+	Hour    int
+	Minutes int
+	Second  int
 }
 
-func NewTime(t time.Time) Time {
-	return Time(t)
+func (t Time) IsZero() (ok bool) {
+	ok = t.Hour == 0 && t.Minutes == 0 && t.Second == 0
+	return
 }
-
-// Time
-// Deprecated
-type Time time.Time
 
 func (t Time) ToTime() time.Time {
-	return time.Time(t)
+	if t.Hour < 0 || t.Hour > 23 {
+		t.Hour = 0
+	}
+	if t.Minutes < 0 || t.Minutes > 59 {
+		t.Minutes = 0
+	}
+	if t.Second < 0 || t.Second > 59 {
+		t.Second = 0
+	}
+	return time.Date(1, 1, 1, t.Hour, t.Minutes, t.Second, 0, time.Local)
 }
 
 func (t Time) String() string {
-	return time.Time(t).Format(time.RFC3339)
+	return t.ToTime().Format("15:04:05")
+}
+
+func timeTypeEncoderFunc(ptr unsafe.Pointer, stream *jsoniter.Stream) {
+	v := reflect.NewAt(timeType, ptr).Elem().Interface().(Time)
+	if v.IsZero() {
+		stream.WriteString("")
+	} else {
+		stream.WriteString(v.ToTime().Format("15:04:05"))
+	}
+	return
+}
+
+func timeIsEmpty(ptr unsafe.Pointer) bool {
+	return reflect.NewAt(timeType, ptr).Elem().Interface().(Time).IsZero()
+}
+
+func timeTypeDecoderFunc(ptr unsafe.Pointer, iter *jsoniter.Iterator) {
+	str := iter.ReadString()
+	if iter.Error != nil {
+		return
+	}
+	if str == "" {
+		return
+	}
+	v, parseErr := time.Parse("15:04:05", str)
+	if parseErr != nil {
+		iter.ReportError("unmarshal json.Time", parseErr.Error())
+		return
+	}
+	reflect.NewAt(timeType, ptr).Elem().Set(reflect.ValueOf(v))
+	return
 }
 
 var (
-	timeType = reflect.TypeOf(time.Time{})
+	datetimeType = reflect.TypeOf(time.Time{})
 )
 
-func timeTypeEncoderFunc(ptr unsafe.Pointer, stream *jsoniter.Stream) {
-	v := reflect.NewAt(timeType, ptr).Elem().Interface().(time.Time)
+func datetimeTypeEncoderFunc(ptr unsafe.Pointer, stream *jsoniter.Stream) {
+	v := reflect.NewAt(datetimeType, ptr).Elem().Interface().(time.Time)
 	if v.IsZero() {
 		stream.WriteString("")
 	} else {
@@ -41,11 +84,11 @@ func timeTypeEncoderFunc(ptr unsafe.Pointer, stream *jsoniter.Stream) {
 	return
 }
 
-func timeIsEmpty(ptr unsafe.Pointer) bool {
-	return reflect.NewAt(timeType, ptr).Elem().Interface().(time.Time).IsZero()
+func datetimeIsEmpty(ptr unsafe.Pointer) bool {
+	return reflect.NewAt(datetimeType, ptr).Elem().Interface().(time.Time).IsZero()
 }
 
-func timeTypeDecoderFunc(ptr unsafe.Pointer, iter *jsoniter.Iterator) {
+func datetimeTypeDecoderFunc(ptr unsafe.Pointer, iter *jsoniter.Iterator) {
 	str := iter.ReadString()
 	if iter.Error != nil {
 		return
@@ -58,6 +101,6 @@ func timeTypeDecoderFunc(ptr unsafe.Pointer, iter *jsoniter.Iterator) {
 		iter.ReportError("unmarshal time.Time", parseErr.Error())
 		return
 	}
-	reflect.NewAt(timeType, ptr).Elem().Set(reflect.ValueOf(v))
+	reflect.NewAt(datetimeType, ptr).Elem().Set(reflect.ValueOf(v))
 	return
 }
