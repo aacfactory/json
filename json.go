@@ -17,12 +17,14 @@
 package json
 
 import (
+	"encoding/json"
 	jsoniter "github.com/json-iterator/go"
-	"github.com/tidwall/gjson"
+	"unsafe"
 )
 
 var (
-	_json jsoniter.API
+	_json    jsoniter.API
+	_shorted jsoniter.API
 )
 
 func init() {
@@ -37,6 +39,14 @@ func init() {
 	jsoniter.RegisterTypeEncoderFunc("complex128", complexTypeEncoderFunc, complexIsEmpty)
 	jsoniter.RegisterTypeDecoderFunc("complex128", complexTypeDecoderFunc)
 	_json = jsoniter.ConfigDefault
+	_shorted = jsoniter.Config{
+		SortMapKeys: true,
+		EscapeHTML:  true,
+	}.Froze()
+}
+
+func Shorted() jsoniter.API {
+	return _shorted
 }
 
 type Marshaler interface {
@@ -47,30 +57,30 @@ type Unmarshaler interface {
 	UnmarshalJSON([]byte) error
 }
 
-func API() jsoniter.API {
+func Default() jsoniter.API {
 	return _json
 }
 
 func Validate(data []byte) bool {
-	return gjson.ValidBytes(data)
+	return json.Valid(data)
 }
 
 func ValidateString(data string) bool {
-	return gjson.Valid(data)
+	return json.Valid(unsafe.Slice(unsafe.StringData(data), len(data)))
 }
 
 func Marshal(v interface{}) (p []byte, err error) {
-	p, err = API().Marshal(v)
+	p, err = Default().Marshal(v)
 	return
 }
 
 func Unmarshal(data []byte, v interface{}) (err error) {
-	err = API().Unmarshal(data, v)
+	err = Default().Unmarshal(data, v)
 	return
 }
 
 func UnsafeMarshal(v interface{}) []byte {
-	p, err := API().Marshal(v)
+	p, err := Default().Marshal(v)
 	if err != nil {
 		panic("json marshal object in unsafe mode failed")
 		return nil
@@ -79,7 +89,7 @@ func UnsafeMarshal(v interface{}) []byte {
 }
 
 func UnsafeUnmarshal(data []byte, v interface{}) {
-	err := API().Unmarshal(data, v)
+	err := Default().Unmarshal(data, v)
 	if err != nil {
 		panic("json unmarshal object in unsafe mode failed")
 		return
