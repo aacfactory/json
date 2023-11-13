@@ -1,10 +1,10 @@
 module github.com/aacfactory/json
 
-go 1.20
+go 1.21
 
 require (
 	github.com/json-iterator/go v1.1.12
-	github.com/tidwall/gjson v1.14.4
+	github.com/tidwall/gjson v1.17.0
 	github.com/tidwall/sjson v1.2.5
 	github.com/valyala/bytebufferpool v1.0.0
 )
