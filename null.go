@@ -3,10 +3,10 @@ package json
 import "bytes"
 
 var (
-	Null = []byte("null")
+	NullBytes = []byte("null")
 )
 
 func IsNull(p []byte) (ok bool) {
-	ok = len(p) == 0 || bytes.Equal(p, Null)
+	ok = len(p) == 0 || bytes.Equal(p, NullBytes)
 	return
 }
