@@ -25,6 +25,15 @@ import (
 	"io"
 )
 
+var (
+	EmptyArrayBytes = []byte{'[', ']'}
+)
+
+func IsEmptyArray(p []byte) (ok bool) {
+	ok = len(p) == 0 || bytes.Equal(p, EmptyArrayBytes)
+	return
+}
+
 func NewArrayFromBytes(b []byte) *Array {
 	if b[0] != '[' || b[len(b)-1] != ']' {
 		panic(fmt.Errorf("new json array from bytes failed, %s is not json array bytes", string(b)))

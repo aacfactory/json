@@ -17,10 +17,20 @@
 package json
 
 import (
+	"bytes"
 	"fmt"
 	"github.com/tidwall/gjson"
 	"github.com/tidwall/sjson"
 )
+
+var (
+	EmptyObjectBytes = []byte{'{', '}'}
+)
+
+func IsEmptyObject(p []byte) (ok bool) {
+	ok = len(p) == 0 || bytes.Equal(p, EmptyObjectBytes)
+	return
+}
 
 func NewObjectFromInterface(v interface{}) *Object {
 	if v == nil {
@@ -53,7 +63,7 @@ type Object struct {
 }
 
 func (object *Object) Empty() (ok bool) {
-	if object.raw == nil || len(object.raw) == 0 {
+	if object.raw == nil || len(object.raw) == 0 || bytes.Equal(object.raw, EmptyObjectBytes) {
 		ok = true
 		return
 	}
