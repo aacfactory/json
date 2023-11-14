@@ -1,12 +1,15 @@
 package json
 
-import "errors"
+import (
+	"bytes"
+	"errors"
+)
 
 type RawMessage []byte
 
 func (m RawMessage) MarshalJSON() ([]byte, error) {
-	if m == nil || len(m) == 0 {
-		return []byte("null"), nil
+	if len(m) == 0 {
+		return NullBytes, nil
 	}
 	if !Validate(m) {
 		return nil, errors.New("json.RawMessage: MarshalJSON on invalid message")
@@ -78,6 +81,26 @@ func (m *RawMessage) MapToArray() (r *Array, err error) {
 	}
 	r = &Array{
 		raw: *m,
+	}
+	return
+}
+
+func (m RawMessage) Exist() (ok bool) {
+	ok = len(m) > 0 && !bytes.Equal(m, NullBytes)
+	return
+}
+
+func (m RawMessage) Scan(dst interface{}) (err error) {
+	if !m.Exist() {
+		return
+	}
+	if bytes.Equal(m, EmptyObjectBytes) || bytes.Equal(m, EmptyArrayBytes) {
+		return
+	}
+	err = Unmarshal(m, dst)
+	if err != nil {
+		err = errors.New("json.RawMessage: scan failed")
+		return
 	}
 	return
 }

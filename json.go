@@ -17,7 +17,6 @@
 package json
 
 import (
-	"encoding/json"
 	jsoniter "github.com/json-iterator/go"
 	"unsafe"
 )
@@ -62,11 +61,11 @@ func Default() jsoniter.API {
 }
 
 func Validate(data []byte) bool {
-	return json.Valid(data)
+	return _json.Valid(data)
 }
 
 func ValidateString(data string) bool {
-	return json.Valid(unsafe.Slice(unsafe.StringData(data), len(data)))
+	return _json.Valid(unsafe.Slice(unsafe.StringData(data), len(data)))
 }
 
 func Marshal(v interface{}) (p []byte, err error) {
