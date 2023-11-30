@@ -37,11 +37,23 @@ func init() {
 	jsoniter.RegisterTypeDecoderFunc("complex64", complexTypeDecoderFunc)
 	jsoniter.RegisterTypeEncoderFunc("complex128", complexTypeEncoderFunc, complexIsEmpty)
 	jsoniter.RegisterTypeDecoderFunc("complex128", complexTypeDecoderFunc)
-	_json = jsoniter.ConfigDefault
+	_json = jsoniter.Config{
+		MarshalFloatWith6Digits:       true,
+		EscapeHTML:                    false,
+		ObjectFieldMustBeSimpleString: true,
+	}.Froze()
 	_shorted = jsoniter.Config{
 		SortMapKeys: true,
 		EscapeHTML:  true,
 	}.Froze()
+}
+
+func Config(config jsoniter.Config) {
+	_json = config.Froze()
+}
+
+func ConfigCompatibleWithStandardLibrary() {
+	_json = jsoniter.ConfigCompatibleWithStandardLibrary
 }
 
 func Shorted() jsoniter.API {

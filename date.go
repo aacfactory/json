@@ -8,7 +8,7 @@ import (
 )
 
 func DateNow() Date {
-	return NewDateFromTime(time.Now())
+	return DateOf(time.Now())
 }
 
 func NewDate(year int, month time.Month, day int) Date {
@@ -19,7 +19,7 @@ func NewDate(year int, month time.Month, day int) Date {
 	}
 }
 
-func NewDateFromTime(t time.Time) Date {
+func DateOf(t time.Time) Date {
 	return NewDate(t.Year(), t.Month(), t.Day())
 }
 
@@ -82,6 +82,6 @@ func dateTypeDecoderFunc(ptr unsafe.Pointer, iter *jsoniter.Iterator) {
 		iter.ReportError("unmarshal json.Date", parseErr.Error())
 		return
 	}
-	reflect.NewAt(dateType, ptr).Elem().Set(reflect.ValueOf(NewDateFromTime(v)))
+	reflect.NewAt(dateType, ptr).Elem().Set(reflect.ValueOf(DateOf(v)))
 	return
 }

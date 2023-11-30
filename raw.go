@@ -90,7 +90,7 @@ func (m RawMessage) Exist() (ok bool) {
 	return
 }
 
-func (m RawMessage) Scan(dst interface{}) (err error) {
+func (m RawMessage) TransformTo(dst interface{}) (err error) {
 	if !m.Exist() {
 		return
 	}

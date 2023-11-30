@@ -17,6 +17,14 @@ type Time struct {
 	Second  int
 }
 
+func NewTime(hour int, minutes int, second int) Time {
+	return Time{Hour: hour, Minutes: minutes, Second: second}
+}
+
+func TimeOf(t time.Time) Time {
+	return NewTime(t.Hour(), t.Minute(), t.Second())
+}
+
 func (t Time) IsZero() (ok bool) {
 	ok = t.Hour == 0 && t.Minutes == 0 && t.Second == 0
 	return
