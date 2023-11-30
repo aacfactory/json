@@ -85,13 +85,13 @@ func (m *RawMessage) MapToArray() (r *Array, err error) {
 	return
 }
 
-func (m RawMessage) Exist() (ok bool) {
+func (m RawMessage) Valid() (ok bool) {
 	ok = len(m) > 0 && !bytes.Equal(m, NullBytes)
 	return
 }
 
 func (m RawMessage) TransformTo(dst interface{}) (err error) {
-	if !m.Exist() {
+	if !m.Valid() {
 		return
 	}
 	if bytes.Equal(m, EmptyObjectBytes) || bytes.Equal(m, EmptyArrayBytes) {
