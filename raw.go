@@ -3,6 +3,7 @@ package json
 import (
 	"bytes"
 	"errors"
+	"unsafe"
 )
 
 type RawMessage []byte
@@ -99,8 +100,26 @@ func (m RawMessage) TransformTo(dst interface{}) (err error) {
 	}
 	err = Unmarshal(m, dst)
 	if err != nil {
-		err = errors.New("json.RawMessage: scan failed")
+		err = errors.New("json.RawMessage: transform failed")
 		return
+	}
+	return
+}
+
+func (m *RawMessage) Scan(src interface{}) (err error) {
+	switch s := src.(type) {
+	case string:
+		p := unsafe.Slice(unsafe.StringData(s), len(s))
+		*m = bytes.Clone(p)
+		break
+	case []byte:
+		*m = bytes.Clone(s)
+		break
+	case nil:
+		break
+	default:
+		err = errors.New("json.RawMessage: scan failed, unsupported src type")
+		break
 	}
 	return
 }
