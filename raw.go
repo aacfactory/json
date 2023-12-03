@@ -42,46 +42,44 @@ func (m *RawMessage) UnmarshalBinary(data []byte) (err error) {
 	return
 }
 
-func (m *RawMessage) TryMapToObject() bool {
+func (m RawMessage) TryMapToObject() bool {
 	if m == nil {
 		return false
 	}
-	b := []byte(*m)
-	if b[0] != '{' || b[len(b)-1] != '}' {
+	if m[0] != '{' || m[len(m)-1] != '}' {
 		return false
 	}
 	return true
 }
 
-func (m *RawMessage) MapToObject() (r *Object, err error) {
+func (m RawMessage) MapToObject() (r *Object, err error) {
 	if !m.TryMapToObject() {
 		err = errors.New("json.RawMessage: MapToObject on invalid message")
 		return
 	}
 	r = &Object{
-		raw: *m,
+		raw: m,
 	}
 	return
 }
 
-func (m *RawMessage) TryMapToArray() bool {
+func (m RawMessage) TryMapToArray() bool {
 	if m == nil {
 		return false
 	}
-	b := []byte(*m)
-	if b[0] != '[' || b[len(b)-1] != ']' {
+	if m[0] != '[' || m[len(m)-1] != ']' {
 		return false
 	}
 	return true
 }
 
-func (m *RawMessage) MapToArray() (r *Array, err error) {
+func (m RawMessage) MapToArray() (r *Array, err error) {
 	if !m.TryMapToArray() {
 		err = errors.New("json.RawMessage: MapToArray on invalid message")
 		return
 	}
 	r = &Array{
-		raw: *m,
+		raw: m,
 	}
 	return
 }
