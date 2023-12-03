@@ -17,6 +17,7 @@
 package json
 
 import (
+	stdjson "encoding/json"
 	jsoniter "github.com/json-iterator/go"
 	"unsafe"
 )
@@ -73,25 +74,28 @@ func Default() jsoniter.API {
 }
 
 func Validate(data []byte) bool {
-	return _json.Valid(data)
+	if _json.Valid(data) {
+		return true
+	}
+	return stdjson.Valid(data)
 }
 
 func ValidateString(data string) bool {
-	return _json.Valid(unsafe.Slice(unsafe.StringData(data), len(data)))
+	return Validate(unsafe.Slice(unsafe.StringData(data), len(data)))
 }
 
 func Marshal(v interface{}) (p []byte, err error) {
-	p, err = Default().Marshal(v)
+	p, err = _json.Marshal(v)
 	return
 }
 
 func Unmarshal(data []byte, v interface{}) (err error) {
-	err = Default().Unmarshal(data, v)
+	err = _json.Unmarshal(data, v)
 	return
 }
 
 func UnsafeMarshal(v interface{}) []byte {
-	p, err := Default().Marshal(v)
+	p, err := _json.Marshal(v)
 	if err != nil {
 		panic("json marshal object in unsafe mode failed")
 		return nil
@@ -100,7 +104,7 @@ func UnsafeMarshal(v interface{}) []byte {
 }
 
 func UnsafeUnmarshal(data []byte, v interface{}) {
-	err := Default().Unmarshal(data, v)
+	err := _json.Unmarshal(data, v)
 	if err != nil {
 		panic("json unmarshal object in unsafe mode failed")
 		return
