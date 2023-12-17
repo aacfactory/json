@@ -84,12 +84,30 @@ func (m RawMessage) MapToArray() (r *Array, err error) {
 	return
 }
 
+// Valid
+// objects.Valid
 func (m RawMessage) Valid() (ok bool) {
 	ok = len(m) > 0 && !bytes.Equal(m, NullBytes)
 	return
 }
 
-func (m RawMessage) TransformTo(dst interface{}) (err error) {
+// Value
+// objects.Value
+func (m RawMessage) Value() (v any) {
+	v = m
+	return
+}
+
+// Marshal
+// objects.Marshal
+func (m RawMessage) Marshal() (p []byte, err error) {
+	p = m
+	return
+}
+
+// Unmarshal
+// objects.Unmarshal
+func (m RawMessage) Unmarshal(dst interface{}) (err error) {
 	if !m.Valid() {
 		return
 	}
@@ -104,6 +122,8 @@ func (m RawMessage) TransformTo(dst interface{}) (err error) {
 	return
 }
 
+// Scan
+// sql.Scanner
 func (m *RawMessage) Scan(src interface{}) (err error) {
 	switch s := src.(type) {
 	case string:
