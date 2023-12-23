@@ -38,6 +38,12 @@ func init() {
 	jsoniter.RegisterTypeDecoderFunc("complex64", complexTypeDecoderFunc)
 	jsoniter.RegisterTypeEncoderFunc("complex128", complexTypeEncoderFunc, complexIsEmpty)
 	jsoniter.RegisterTypeDecoderFunc("complex128", complexTypeDecoderFunc)
+	jsoniter.RegisterTypeEncoderFunc("big.Rat", bigRatTypeEncoderFunc, bigRatIsEmpty)
+	jsoniter.RegisterTypeDecoderFunc("big.Rat", bigRatTypeDecoderFunc)
+	jsoniter.RegisterTypeEncoderFunc("big.Int", bigIntTypeEncoderFunc, bigIntIsEmpty)
+	jsoniter.RegisterTypeDecoderFunc("big.Int", bigIntTypeDecoderFunc)
+	jsoniter.RegisterTypeEncoderFunc("big.Float", bigFloatTypeEncoderFunc, bigFloatIsEmpty)
+	jsoniter.RegisterTypeDecoderFunc("big.Float", bigFloatTypeDecoderFunc)
 	_json = jsoniter.Config{
 		MarshalFloatWith6Digits:       true,
 		EscapeHTML:                    false,
