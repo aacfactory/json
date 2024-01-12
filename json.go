@@ -30,6 +30,8 @@ var (
 func init() {
 	jsoniter.RegisterTypeEncoderFunc("time.Time", datetimeTypeEncoderFunc, datetimeIsEmpty)
 	jsoniter.RegisterTypeDecoderFunc("time.Time", datetimeTypeDecoderFunc)
+	jsoniter.RegisterTypeEncoderFunc("time.Duration", durationTypeEncoderFunc, durationIsEmpty)
+	jsoniter.RegisterTypeDecoderFunc("time.Duration", durationTypeDecoderFunc)
 	jsoniter.RegisterTypeEncoderFunc("json.Date", dateTypeEncoderFunc, dateIsEmpty)
 	jsoniter.RegisterTypeDecoderFunc("json.Date", dateTypeDecoderFunc)
 	jsoniter.RegisterTypeEncoderFunc("json.Time", timeTypeEncoderFunc, timeIsEmpty)
